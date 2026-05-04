@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScanDesk</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Document pages and export tools">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span>
+          </div>
+          <div>
+            <h1>ScanDesk</h1>
+            <p>Scan, clean, export</p>
+          </div>
+        </div>
+
+        <section class="capture-panel" aria-label="Capture document">
+          <div class="panel-title">
+            <h2>Capture</h2>
+            <span id="pageCount">0 pages</span>
+          </div>
+
+          <label class="file-drop" for="fileInput" id="dropZone">
+            <input id="fileInput" type="file" accept="image/*,.pdf" multiple />
+            <span class="icon" aria-hidden="true">+</span>
+            <span>Import pages or camera shots</span>
+          </label>
+
+          <div class="capture-actions">
+            <button class="tool-button primary" id="cameraButton" type="button" title="Open camera">
+              <span aria-hidden="true">◉</span>
+              Open camera
+            </button>
+            <button class="tool-button" id="scanButton" type="button" title="Capture current camera frame" disabled>
+              <span aria-hidden="true">▣</span>
+              Capture
+            </button>
+          </div>
+
+          <div class="camera-stage" id="cameraStage" hidden>
+            <video id="cameraFeed" playsinline autoplay muted></video>
+          </div>
+        </section>
+
+        <section class="pages-panel" aria-label="Scanned pages">
+          <div class="panel-title">
+            <h2>Pages</h2>
+            <button class="icon-button" id="clearButton" type="button" title="Clear all pages">×</button>
+          </div>
+          <div class="page-list" id="pageList"></div>
+        </section>
+
+        <section class="export-panel" aria-label="Export document">
+          <div class="panel-title">
+            <h2>Export</h2>
+            <span id="qualityLabel">A4 PDF</span>
+          </div>
+          <div class="export-grid">
+            <button class="tool-button" id="exportPdf" type="button">PDF</button>
+            <button class="tool-button" id="exportDocx" type="button">DOCX</button>
+            <button class="tool-button" id="exportDoc" type="button">DOC</button>
+            <button class="tool-button" id="exportHtml" type="button">HTML</button>
+            <button class="tool-button" id="exportTxt" type="button">TXT</button>
+            <button class="tool-button" id="exportJson" type="button">JSON</button>
+          </div>
+          <div class="export-status" id="exportStatus" aria-live="polite"></div>
+        </section>
+      </aside>
+
+      <section class="workspace" aria-label="Document editor">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">document scan</p>
+            <h2 id="documentTitle">New Scan</h2>
+          </div>
+          <div class="topbar-actions">
+            <input id="titleInput" type="text" value="New Scan" aria-label="Document title" />
+            <button class="tool-button primary" id="downloadAll" type="button">Export PDF</button>
+          </div>
+        </header>
+
+        <div class="editor-grid">
+          <section class="preview-area" aria-label="Page preview">
+            <div class="empty-state" id="emptyState">
+              <div class="scanner-visual" aria-hidden="true">
+                <div class="glass"></div>
+                <div class="page-shape">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="scan-line"></div>
+              </div>
+              <h2>Ready for a clean scan</h2>
+              <p>No pages captured yet.</p>
+            </div>
+
+            <div class="canvas-wrap" id="canvasWrap" hidden>
+              <canvas id="pageCanvas"></canvas>
+              <div id="cropBox" class="crop-box" hidden>
+                <span data-corner="tl"></span>
+                <span data-corner="tr"></span>
+                <span data-corner="br"></span>
+                <span data-corner="bl"></span>
+              </div>
+            </div>
+          </section>
+
+          <aside class="tools-panel" aria-label="Image and text tools">
+            <div class="tabs" id="editorTabs" role="tablist" aria-label="Editor tabs">
+              <button class="tab active" id="adjustTab" data-tab="adjust" type="button" role="tab" aria-controls="adjustPanel" aria-selected="true">Adjust</button>
+              <button class="tab" id="textTab" data-tab="text" type="button" role="tab" aria-controls="textPanel" aria-selected="false">Text</button>
+              <button class="tab" id="settingsTab" data-tab="settings" type="button" role="tab" aria-controls="settingsPanel" aria-selected="false">Settings</button>
+            </div>
+
+            <section class="tab-panel active" id="adjustPanel" role="tabpanel" aria-labelledby="adjustTab">
+              <div class="segmented" aria-label="Page color mode">
+                <button class="active" data-filter="original" type="button">Original</button>
+                <button data-filter="grayscale" type="button">Gray</button>
+                <button data-filter="bw" type="button">B/W</button>
+              </div>
+
+              <label class="range-field">
+                <span>Brightness</span>
+                <input id="brightnessInput" type="range" min="-60" max="80" value="8" />
+              </label>
+              <label class="range-field">
+                <span>Contrast</span>
+                <input id="contrastInput" type="range" min="-60" max="80" value="18" />
+              </label>
+              <label class="range-field">
+                <span>Sharpness</span>
+                <input id="sharpnessInput" type="range" min="0" max="100" value="18" />
+              </label>
+
+              <div class="action-row">
+                <button class="tool-button" id="autoEnhance" type="button">Auto</button>
+                <button class="tool-button" id="rotateLeft" type="button">↶</button>
+                <button class="tool-button" id="rotateRight" type="button">↷</button>
+              </div>
+
+              <div class="action-row">
+                <button class="tool-button" id="toggleCrop" type="button">Crop</button>
+                <button class="tool-button" id="applyCrop" type="button">Apply</button>
+              </div>
+            </section>
+
+            <section class="tab-panel" id="textPanel" role="tabpanel" aria-labelledby="textTab" hidden>
+              <div class="ocr-row">
+                <button class="tool-button" id="ocrButton" type="button">Detect Text</button>
+                <span id="ocrStatus">Optional</span>
+              </div>
+              <textarea id="pageText" placeholder="Recognized or typed text for this page"></textarea>
+            </section>
+
+            <section class="tab-panel" id="settingsPanel" role="tabpanel" aria-labelledby="settingsTab" hidden>
+              <label class="select-field">
+                <span>Page size</span>
+                <select id="pageSize">
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                  <option value="fit">Fit image</option>
+                </select>
+              </label>
+              <label class="select-field">
+                <span>PDF quality</span>
+                <select id="pdfQuality">
+                  <option value="0.92">High</option>
+                  <option value="0.78">Balanced</option>
+                  <option value="0.62">Small</option>
+                </select>
+              </label>
+              <label class="check-field">
+                <input id="includeText" type="checkbox" checked />
+                <span>Include page text in document exports</span>
+              </label>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
