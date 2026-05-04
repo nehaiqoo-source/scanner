@@ -29,11 +29,12 @@ Camera access works best from `localhost` or `127.0.0.1`, not directly from a `f
 ## Project Files
 
 ```text
-index.html    App structure
-styles.css    Adobe Scan-inspired interface styling
-app.js        Scanner, image editing, and export logic
-server.js     Lightweight local static server
-package.json  Local run script
+index.html             App structure
+styles.css             Adobe Scan-inspired interface styling
+app.js                 Scanner, image editing, and export logic
+scripts/dev-server.js  Lightweight local static server
+package.json           Local run and build scripts
+vercel.json            Static Vercel deployment config
 ```
 
 ## Notes

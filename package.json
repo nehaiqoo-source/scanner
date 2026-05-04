@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node scripts/dev-server.js",
+    "build": "node -e \"console.log('ScanDesk is a static app; no build step needed.')\""
   }
 }
